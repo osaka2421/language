@@ -85,3 +85,9 @@ Example:
 FOR i = 1 TO 5 DO
     SHOW i
 END
+
+Function Examples :
+
+FUN add(a b)DO
+    SHOW 100
+END
