@@ -88,7 +88,6 @@ class Parser:
             elif tok.matches(TT_KEYWORD,'WHEN'):
                  when_expr = res.register(self.when_expr())  
                  
-                 
                  if res.error:
                       return res 
                  
@@ -105,14 +104,18 @@ class Parser:
                  if res.error:
                       return res
                  return res.success(for_expr)
+            
+            elif tok.matches(TT_KEYWORD,'FUN'):
+                 fun_expr = res.register(self.fun_expr())
+                 if res.error:
+                      return res
+                 return res.success(fun_expr)
 
             elif tok.type_ == TT_STRING:
                  res.register_advancement()
                  self.advance()
                  return res.success(StringNode(tok))
-            
-            
-            
+                        
             if tok.matches(TT_KEYWORD , "INPUT"):
                  res.register_advancement()
                  self.advance()
@@ -441,7 +444,7 @@ class Parser:
          return res.success(WhileNode(condition,body))
     
 
-    def Fun_expr(self):
+    def fun_expr(self):
          res = ParseResult()
 
 
@@ -468,7 +471,7 @@ class Parser:
 
          if self.current_tok.type_ != TT_LPAREN :
               return res.failure(InvalidSyntaxError(
-                   self.current_tok.pos_start , self.current_tok_end ,
+                   self.current_tok.pos_start , self.current_tok.pos_end ,
                    "Expected '('"
               ))
          
@@ -521,12 +524,11 @@ class Parser:
 
 
          return res.success(
-              var_name_tok,
+              FunNode(
+               var_name_tok,
               arg_name_toks,
               body_node
-         )
-
-     
+              ))
 
     def for_expr(self):
          res = ParseResult()
@@ -632,11 +634,7 @@ class Parser:
               body
          ))
 
-
-       
-            
-         
-           
+      
     def bin_op(self,func_a, op,func_b = None):
       if func_b == None:
           func_b = func_a
