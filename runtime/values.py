@@ -137,6 +137,22 @@ class string:
      
      def __repr__(self):
           return str(self.value)
+     
+
+class Function:
+     def __init__(self,name,body_node,arg_names):
+          self.name = name
+          self.body_node = body_node
+          self.arg_names = arg_names
+          self.context = None
+
+     def set_context(self, context):
+        self.context = context
+        return self
+
+     def copy(self):
+        return self
+     
           
           
              
