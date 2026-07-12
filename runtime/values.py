@@ -145,6 +145,13 @@ class Function:
           self.body_node = body_node
           self.arg_names = arg_names
           self.context = None
+          self.pos_start = None
+          self.pos_end = None
+
+     def set_pos(self,pos_start = None, pos_end = None):
+          self.pos_start = pos_start
+          self.pos_end = pos_end
+          return self
 
      def set_context(self, context):
         self.context = context
@@ -153,6 +160,38 @@ class Function:
      def copy(self):
         return self
      
+
+     def execute(self,args):
+          from runtime.context import Context
+          from runtime.SymbolTable import SymbolTable
+          from runtime.interpreter import Interpreter
+
+          res = RTResult()
+
+          new_context = Context(self.name, self.context)
+          new_context.symbol_table = SymbolTable()
+          new_context.symbol_table.parent = self.context.symbol_table
+
+
+          if len(args) != len(self.arg_names):
+               return res.failure(RTError(
+                    self.body_node.pos_start, self.body_node.pos_end,
+                    f"Expected {len(self.arg_names)} arguments , got {len(args)}",
+                    self.context
+               ))
           
+
+          for name,value in zip(self.arg_names,args):
+               value.set_context(new_context)
+               new_context.symbol_table.set(name,value)
+
+          interpreter = Interpreter()
           
-             
+          value = res.register(interpreter.visit(self.body_node,new_context))
+
+
+          if res.error : return res
+
+          return res.success(value)
+
+
