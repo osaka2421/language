@@ -186,7 +186,7 @@ class Interpreter :
             context.symbol_table.set(func_name,func_value)
 
 
-            return res.success(func_value)
+            return res.success(None)
        
 
        def visit_CallNode(self,node,context):
