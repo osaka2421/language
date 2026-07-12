@@ -63,12 +63,33 @@ class Parser:
                 self.advance()
                 return res.success(NumberNode(tok))
             
-            elif tok.type_ == TT_IDENTIFIER:
+            elif tok.type_  == TT_IDENTIFIER:
                  res.register_advancement()
                  self.advance()
-                 return res.success(VarAccessNode(tok))
-            
-            
+
+                 var_access = VarAccessNode(tok)
+
+                 if self.current_tok.type_ == TT_LPAREN:
+                      res.register_advancement()
+                      self.advance()
+
+                      arg_nodes = []
+
+                      while self.current_tok.type_ != TT_RPAREN:
+                           arg = res.register(self.expr())
+                           if res.error:
+                                return res 
+                           
+                           arg_nodes.append(arg)
+
+                      res.register_advancement()
+                      self.advance()
+
+                      return res.success(CallNode(var_access,arg_nodes))
+                 
+                 return res.success(var_access)
+
+
             elif tok.type_ == TT_LPAREN:
                 res.register_advancement()
                 self.advance()
@@ -110,7 +131,7 @@ class Parser:
                  if res.error:
                       return res
                  return res.success(fun_expr)
-
+            
             elif tok.type_ == TT_STRING:
                  res.register_advancement()
                  self.advance()
@@ -119,7 +140,7 @@ class Parser:
             if tok.matches(TT_KEYWORD , "INPUT"):
                  res.register_advancement()
                  self.advance()
-                 return res.success(InputNode(tok.pos_start,tok.pos_end))
+                 return res.success(InputNode(tok.pos_start, tok.pos_end))
 
             return res.failure(InvalidSyntaxError(
                  tok.pos_start, tok.pos_end,
