@@ -1,3 +1,6 @@
 FUN add(a b)DO
-    SHOw 100
+    SHOW a + b
 END
+
+
+add(10 20)
