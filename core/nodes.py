@@ -8,8 +8,6 @@ class NumberNode:
     def __repr__(self):
         return f'{self.token}'   
     
-    
-    
 class VarAssignNode:
      def __init__(self,var_name_tok,value_node): 
           self.var_name_tok= var_name_tok
@@ -98,12 +96,9 @@ class ShowNode:
           self.pos_end = value_node.pos_end
 
 class InputNode:
-    def __init__(self, input_tok):
-        self.input_tok = input_tok
-
-        self.pos_start = input_tok.pos_start
-        self.pos_end = input_tok.pos_end
-
+    def __init__(self, pos_start, pos_end):
+        self.pos_start = pos_start
+        self.pos_end = pos_end
 
 class FunNode:
      def __init__(self,var_name_tok,arg_name_toks,body_node):
@@ -120,9 +115,14 @@ class CallNode:
           self.node_to_call = node_to_call
           self.arg_nodes = arg_nodes
 
-     def __init__(self,pos_start,pos_end):
-          self.pos_start = pos_start
-          self.pos_end = pos_end
+
+          self.pos_start = self.node_to_call.pos_start
+
+
+          if len(self.arg_nodes) > 0 :
+               self.pos_end = self.arg_nodes[-1].pos_end
+          else:
+               self.pos_end = self.node_to_call.pos_end
 
 
 class StringNode:
