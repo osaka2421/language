@@ -40,6 +40,9 @@ SHOW a + b
 Make YOUR OWN Programming Language in Python --by CodePulse
 https://www.youtube.com/@CodePulse/playlists
 
+## Book
+https://automatetheboringstuff.com/
+
 ## Author
 OSAKA
 Passionate about building systems and exploring programming design
