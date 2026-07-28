@@ -91,3 +91,23 @@ Function Examples :
 FUN add(a b)DO
     SHOW 100
 END
+
+Return expr :
+
+RETURN <expression>
+
+return syntax :
+
+FUN function_name(parameters) DO
+    RETURN expression
+END
+
+RETURN Example:
+
+FUN test() DO
+    SHOW 1
+    RETURN 5
+    SHOW 2
+END
+
+SHOW test()
