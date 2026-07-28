@@ -55,6 +55,10 @@ class Interpreter :
 
                  if res.error:
                       return res
+
+                 if res.func_return_value is not None:
+                    ##  print("RETURN DETECTED")
+                      return res
                  
                  if value is not None:
                       results.append(value)
@@ -141,6 +145,7 @@ class Interpreter :
             
             return res.success(Number(0))
        
+       
        def visit_WhileNode(self,node,context):
             res = RTResult()
             loop_count = 0 
@@ -214,11 +219,24 @@ class Interpreter :
             return_value = res.register(
                  value_to_call.execute(args)
             )
+            ##print("CallNode return flag:", res.func_return_value)
 
             if res.error:
                  return res
             
             return res.success(return_value)
+
+       def visit_ReturnNode(self,node,context):
+            res= RTResult()
+
+            value = res.register(self.visit(
+                 node.node_to_return,context
+            ))
+
+            if res.error:
+                 return res
+
+            return res.success_return(value)
             
        def visit_ShowNode(self,node,context):
             res = RTResult()
