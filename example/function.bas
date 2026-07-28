@@ -1,6 +1,15 @@
 FUN add(a b)DO
-    SHOW a + b
+    RETURN a + b
 END
 
 
-add(10 20)
+ SHOW add(10 20)
+
+ FUN Test()DO
+    SHOW 1
+    RETURN 5
+    SHOW 2
+END   
+
+SHOW Test()
+~
