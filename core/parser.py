@@ -287,7 +287,27 @@ class Parser:
                  expr = res.register(self.expr())
                  if res.error : return res 
                  return res.success(VarAssignNode(var_name, expr))
-            
+
+
+            if self.current_tok.matches(TT_KEYWORD, "RETURN"):
+                 return_tok = self.current_tok
+                 res.register_advancement()
+                 self.advance()
+
+                 expr = res.register(self.expr())
+                 if res.error:
+                      return res
+
+                 return res.success(
+                     ReturnNode(
+                          expr,
+                           return_tok.pos_start,
+                          expr.pos_end
+                     )
+                      
+                 )
+                 
+             
 
             node = res.register(self.bin_op(self.comp_expr,((TT_KEYWORD ,'AND'),(TT_KEYWORD ,'OR'))))
 
