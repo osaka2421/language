@@ -4,19 +4,33 @@ class RTResult:
      def __init__(self):
           self.value = None
           self.error = None
+          self.func_return_value = None
      
      def register(self,res) :
-          if res.error : self.error = res.error
+          if res.error : 
+               self.error = res.error
+          self.func_return_value = res.func_return_value
           return res.value
      
      def success(self,value):
           self.value = value
+          self.error = None
+          self.func_return_value = None
           return self
      
      def failure(self,error):
+          self.value = None
           self.error = error
+          self.func_return_value = None
           return self
 
+     def success_return(self,value):
+          self.func_return_value = value
+          return self
+
+         
+
+     
      
 ################
 #####values######
@@ -158,7 +172,10 @@ class Function:
         return self
 
      def copy(self):
-        return self
+          copy = Function(self.name,self.body_node,self.arg_names)
+          copy.set_context(self.context)
+          copy.set_pos(self.pos_start,self.pos_end)
+          return copy
      
 
      def execute(self,args):
@@ -191,6 +208,9 @@ class Function:
 
 
           if res.error : return res
+
+          if res.func_return_value is not None :
+               return res.success(res.func_return_value)
 
           return res.success(value)
 
