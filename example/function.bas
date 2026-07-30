@@ -12,4 +12,3 @@ END
 END   
 
 SHOW Test()
-~
