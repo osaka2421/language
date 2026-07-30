@@ -28,6 +28,9 @@ def run (fn,text):
     ast = parser.parse()
     if ast.error : return None ,ast.error
 
+   ## print(ast.node.element_nodes)
+    ##print(len(ast.node.element_nodes))
+
 ###############################
 # run program
     interpreter = Interpreter()
@@ -36,6 +39,7 @@ def run (fn,text):
     result = interpreter.visit(ast.node, context)
 
     return result.value , result.error
+
 
 
 
