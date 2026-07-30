@@ -32,7 +32,7 @@ def run_file(filename) :
       if error:
           print(error.as_string())
       if result is not None:
-        print(result) 
+        print(result)
    except FileNotFoundError :
       print(f"filename {filename} is not found")
 
