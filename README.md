@@ -2,7 +2,8 @@
 
 Object Oriented Scripting & Kernel Abstractions
 
-OSAKA-LANG is a custom programming language built from scratch using python.
+OsakaLang is an experimental interpreted programming language written in Python. 
+The project is under active development, with new language features being added continuously.
 This language is designed with a focus on:
 - Simplicity
 - Custom syntax design
