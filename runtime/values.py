@@ -215,3 +215,28 @@ class Function:
           return res.success(value)
 
 
+class List:
+     def __init__(self,elements):
+          self.elements = elements
+          self.set_pos()
+          self.set_context()
+
+
+     def set_pos(self,pos_start=None,pos_end=None):
+          self.pos_start_start = pos_start
+          self.pos_end= pos_end
+          return self
+
+     def set_context(self,context=None):
+          self.context = context
+          return self
+
+     def copy(self):
+          copy = List(self.elements)
+          copy.set_pos(self.pos_start, self.pos_end)
+          copy.set_context(self.context)
+          return copy
+
+     def __repr__(self):
+          return "[" + ",".join(map(str,self.elements))+"]"
+          
