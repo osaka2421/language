@@ -16,7 +16,7 @@ class Interpreter :
             return RTResult().success(
              Number(node.token.value)
              .set_context(context).set_pos(node.pos_start,node.pos_end)
-           )
+           )#
        
 
        def visit_VarAccessNode(self,node, context):
@@ -57,18 +57,15 @@ class Interpreter :
                       return res
 
                  if res.func_return_value is not None:
-                    ##  print("RETURN DETECTED")
+          
                       return res
                  
                  if value is not None:
                       results.append(value)
 
-            if len(results)==0:
-                 return res.success(None)
-                 
+            return res.success(None)
 
-                 
-            return res.success(results)
+           
        
 
        def visit_ForNode(self,node,context):
@@ -219,8 +216,7 @@ class Interpreter :
             return_value = res.register(
                  value_to_call.execute(args)
             )
-            ##print("CallNode return flag:", res.func_return_value)
-
+           
             if res.error:
                  return res
             
@@ -250,6 +246,25 @@ class Interpreter :
             print(value)
 
             return res.success(None)
+
+       def  visit_ListExprNode(self,node,context):
+            res = RTResult()
+
+            elements = []
+
+            for element_node in node.element_nodes:
+                 elements.append(res.register(self.visit(element_node,context)))
+
+                 if res.error:
+                      return res
+
+            return res.success(
+                 List(elements)
+                 .set_context(context)
+                 .set_pos(node.pos_start,node.pos_end)
+            )
+                 
+       
        
        def visit_InputNode(self,node,context):
             res =RTResult()
