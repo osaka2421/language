@@ -142,6 +142,12 @@ class Parser:
                  self.advance()
                  return res.success(InputNode(tok.pos_start, tok.pos_end))
 
+            elif tok.type_ == TT_LSQUARE:
+                 list_expr = res.register(self.list_expr())
+                 if res.error:
+                      return res
+                 return res.success(list_expr)
+
             return res.failure(InvalidSyntaxError(
                  tok.pos_start, tok.pos_end,
                  "Expected int,float,identifier,When,'+ ' , '-' , or '('") )
@@ -320,6 +326,7 @@ class Parser:
        
     def when_expr(self):
          res = ParseResult()
+         print(">>> ENTERED when_expr <<<")
          
          if not self.current_tok.matches(TT_KEYWORD, 'WHEN'):
               return res.failure(
@@ -330,13 +337,15 @@ class Parser:
               ))
                    
          res.register_advancement()
-         self.advance()      
+         self.advance()  
+         print("After condition:", self.current_tok.type_, self.current_tok.value)    
          
          condition = res.register(self.expr())
          if res.error:
               return res
        
          if not self.current_tok.matches(TT_KEYWORD, 'DO'):
+              print("FAILED FIRST DO CHECK")
               return res.failure(InvalidSyntaxError(
                    self.current_tok.pos_start,self.current_tok.pos_end,
                    "Expected 'DO'"
@@ -368,6 +377,7 @@ class Parser:
               self.advance()
 
               condition = res.register(self.expr())
+              print("After condition:", self.current_tok.type_, self.current_tok.value)
 
               if res.error:
                    return res
@@ -389,6 +399,7 @@ class Parser:
                    self.advance()
 
               body = res.register(self.expr())
+              print("After body:", self.current_tok.type_, self.current_tok.value)
 
               if res.error:
                    return res
@@ -412,6 +423,7 @@ class Parser:
                    self.advance()
                    
               otherwise_case = res.register(self.expr())    
+              ##print("After OTHERWISE body:", self.current_tok.type_, self.current_tok.value)
               
               
               if res.error:
@@ -431,6 +443,7 @@ class Parser:
               
          res.register_advancement()     
          self.advance()
+         ##print("Current token before END:", self.current_tok.type_, self.current_tok.value)
          
      
          return res.success(WhenNode(cases,otherwise_case))
@@ -604,20 +617,14 @@ class Parser:
                    "Expected  '='"
               ))
          
-
-
          res.register_advancement()
          self.advance()
 
-
          start_value = res.register(self.expr())
-
-
 
          if res.error:
               return res
          
-
          if not self.current_tok.matches(TT_KEYWORD,"TO"):
               return res.failure(InvalidSyntaxError(
                    self.current_tok.pos_start,self.current_tok.pos_end,
@@ -675,7 +682,56 @@ class Parser:
               body
          ))
 
+
+    def list_expr(self):
+         res = ParseResult()
+         element_nodes = []
+
+        
+
+
+         pos_start = self.current_tok.pos_start.copy()
+
+        
+
+         if self.current_tok.type_ != TT_LSQUARE :
+              return res.failure(InvalidSyntaxError( 
+                    self.current_tok.pos_start,
+                     self.current_tok.pos_end,
+                     "Expected '['" 
+                ))
+
+         res.register_advancement()
+         self.advance()
       
+
+         if self.current_tok.type_ == TT_RSQUARE:
+              res.register_advancement()
+              self.advance()
+              
+         else:
+              element_nodes.append(res.register(self.expr()))
+              if res.error:
+                   return res
+
+              while self.current_tok.type_ != TT_RSQUARE:
+                   element_nodes.append(res.register(self.expr()))
+                   if res.error:
+                        return res
+
+                   res.register_advancement()
+                   self.advance()
+
+
+
+
+         ##print("Leaving list_expr")
+         return res.success(ListExprNode(
+              element_nodes,
+              pos_start,
+              self.current_tok.pos_end
+         ))
+     
     def bin_op(self,func_a, op,func_b = None):
       if func_b == None:
           func_b = func_a
