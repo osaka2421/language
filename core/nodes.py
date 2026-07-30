@@ -139,9 +139,14 @@ class StringNode:
 
           self.pos_start = tok.pos_start
           self.pos_end = tok.pos_end
-          
-          
-         
+
+class ListExprNode:
+     def __init__(self,element_nodes,pos_start,pos_end):
+          self.element_nodes = element_nodes
+          self.pos_start = pos_start
+          self.pos_end = pos_end
+
+     
 class UnaryOpNode:
      def __init__(self,op_tok,node):
           self.op_tok = op_tok
