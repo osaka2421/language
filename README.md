@@ -3,7 +3,6 @@
 Object Oriented Scripting & Kernel Abstractions
 
 OsakaLang is an experimental interpreted programming language written in Python. 
-
 The project is under active development, with new language features being added continuously.
 
 This language is designed with a focus on:
