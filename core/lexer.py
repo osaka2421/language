@@ -20,8 +20,9 @@ class Lexer:
 
     def make_tokens(self):
         tokens = []
-
+        ##print("CHAR:", repr(self.current_char))
         while self.current_char != None :
+            ##print("CHAR:", repr(self.current_char))
             if self.current_char in ' \t':
                 self.advance()
             elif self.current_char in '\n':
@@ -57,6 +58,9 @@ class Lexer:
                 self.advance()
             elif self.current_char == ']':
                 tokens.append(Token(TT_RSQUARE,pos_start=self.pos))
+                self.advance()
+            elif self.current_char == ',':
+                tokens.append(Token(TT_COMMA,pos_start=self.pos.copy()))
                 self.advance()
             elif  self.current_char == '!':
                  tok , error = self.make_not_equals()
