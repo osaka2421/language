@@ -57,7 +57,7 @@ class Parser:
     def atom(self):
             res = ParseResult()
             tok = self.current_tok
-
+          
             if tok.type_ in (TT_INT, TT_FLOAT):
                 res.register_advancement()
                 self.advance()
@@ -68,6 +68,26 @@ class Parser:
                  self.advance()
 
                  var_access = VarAccessNode(tok)
+
+                 if self.current_tok.type_ == TT_LSQUARE:
+                      res.register_advancement()
+                      self.advance()
+
+                      index = res.register(self.expr())
+                      if res.error:
+                           return res 
+
+                      if self.current_tok.type_ != TT_RSQUARE:
+                           return res.failure(InvalidSyntaxError(
+                                self.current_tok.pos_start,
+                                self.current_tok.pos_end,
+                                "Expected ']'"
+                           ))
+
+                      res.register_advancement()
+                      self.advance()
+
+                      return res.success(IndexNode(var_access,index))
 
                  if self.current_tok.type_ == TT_LPAREN:
                       res.register_advancement()
@@ -153,8 +173,7 @@ class Parser:
                  "Expected int,float,identifier,When,'+ ' , '-' , or '('") )
              
     def power(self):
-         return self.bin_op(self.atom,(TT_POWER, ),self.factor)
-                                    
+         return self.bin_op(self.atom,(TT_POWER, ),self.factor)                           
     
     def factor(self):
             res = ParseResult()
@@ -326,7 +345,7 @@ class Parser:
        
     def when_expr(self):
          res = ParseResult()
-         print(">>> ENTERED when_expr <<<")
+        ## ">>> ENTERED when_expr <<<")
          
          if not self.current_tok.matches(TT_KEYWORD, 'WHEN'):
               return res.failure(
@@ -338,14 +357,14 @@ class Parser:
                    
          res.register_advancement()
          self.advance()  
-         print("After condition:", self.current_tok.type_, self.current_tok.value)    
+       ##  print("After condition:", self.current_tok.type_, self.current_tok.value)    
          
          condition = res.register(self.expr())
          if res.error:
               return res
        
          if not self.current_tok.matches(TT_KEYWORD, 'DO'):
-              print("FAILED FIRST DO CHECK")
+          ##    print("FAILED FIRST DO CHECK")
               return res.failure(InvalidSyntaxError(
                    self.current_tok.pos_start,self.current_tok.pos_end,
                    "Expected 'DO'"
@@ -377,7 +396,7 @@ class Parser:
               self.advance()
 
               condition = res.register(self.expr())
-              print("After condition:", self.current_tok.type_, self.current_tok.value)
+              ##print("After condition:", self.current_tok.type_, self.current_tok.value)
 
               if res.error:
                    return res
@@ -399,7 +418,7 @@ class Parser:
                    self.advance()
 
               body = res.register(self.expr())
-              print("After body:", self.current_tok.type_, self.current_tok.value)
+              ##"After body:", self.current_tok.type_, self.current_tok.value)
 
               if res.error:
                    return res
@@ -423,7 +442,7 @@ class Parser:
                    self.advance()
                    
               otherwise_case = res.register(self.expr())    
-              ##print("After OTHERWISE body:", self.current_tok.type_, self.current_tok.value)
+              ##"After OTHERWISE body:", self.current_tok.type_, self.current_tok.value)
               
               
               if res.error:
@@ -443,7 +462,7 @@ class Parser:
               
          res.register_advancement()     
          self.advance()
-         ##print("Current token before END:", self.current_tok.type_, self.current_tok.value)
+         ##"Current token before END:", self.current_tok.type_, self.current_tok.value)
          
      
          return res.success(WhenNode(cases,otherwise_case))
@@ -584,6 +603,8 @@ class Parser:
               body_node
               ))
 
+     
+
     def for_expr(self):
          res = ParseResult()
 
@@ -611,7 +632,7 @@ class Parser:
 
 
          if self.current_tok.type_ != TT_EQ:
-              print("current token",self.current_tok)
+              ##print("current token",self.current_tok)
               return res.failure(InvalidSyntaxError(
                    self.current_tok.pos_start,self.current_tok.pos_end,
                    "Expected  '='"
@@ -683,16 +704,44 @@ class Parser:
          ))
 
 
+    def call(self):
+         res = ParseResult()
+
+         atom = res.register(self.atom())
+         if res.error:
+              return res
+
+         while True:
+           if self.current_tok.type_ == TT_LSQUARE:
+              res.register_advancement()
+              self.advance()
+
+              index = res.register(self.expr())
+              if res.error:
+                   return res
+
+              if self.current_tok.type_ != TT_RSQUARE:
+                   return res.failure(InvalidSyntaxError(
+                        self.current_tok.pos_start,
+                         self.current_tok.pos_end,
+                         "Expected ']'"
+                   ))
+              res.register_advancement()
+              self.advance()
+
+              atom = res.success(IndexNode(atom,index))
+
+           else:
+                break
+
+           return res.success(atom)
+
+
     def list_expr(self):
          res = ParseResult()
          element_nodes = []
 
-        
-
-
          pos_start = self.current_tok.pos_start.copy()
-
-        
 
          if self.current_tok.type_ != TT_LSQUARE :
               return res.failure(InvalidSyntaxError( 
@@ -708,29 +757,47 @@ class Parser:
          if self.current_tok.type_ == TT_RSQUARE:
               res.register_advancement()
               self.advance()
-              
-         else:
-              element_nodes.append(res.register(self.expr()))
-              if res.error:
-                   return res
 
-              while self.current_tok.type_ != TT_RSQUARE:
-                   element_nodes.append(res.register(self.expr()))
-                   if res.error:
-                        return res
+              return res.success(ListExprNode(
+                   element_nodes,
+                   pos_start,
+                   self.current_tok.pos_end
+              ))
 
-                   res.register_advancement()
-                   self.advance()
+         element = res.register(self.expr())
+       
+         if res.error:
+            return res
+
+         element_nodes.append(element)  
+
+         while self.current_tok.type_ == TT_COMMA:
+            res.register_advancement()
+            self.advance()
+
+            element = res.register(self.expr())
+            if res.error:
+                return res
+
+            element_nodes.append(element)
 
 
+         if self.current_tok.type_ != TT_RSQUARE:
+           return res.failure(InvalidSyntaxError(
+                    self.current_tok.pos_start,
+                    self.current_tok.pos_end,
+                         "Expected ']"
+                   ))
 
+         res.register_advancement()
+         self.advance()
 
-         ##print("Leaving list_expr")
          return res.success(ListExprNode(
-              element_nodes,
-              pos_start,
-              self.current_tok.pos_end
-         ))
+                   element_nodes,
+                   pos_start,
+                   self.current_tok.pos_end
+              ))
+
      
     def bin_op(self,func_a, op,func_b = None):
       if func_b == None:
