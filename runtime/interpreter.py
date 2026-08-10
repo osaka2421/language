@@ -292,6 +292,54 @@ class Interpreter :
                  .set_context(context).set_pos(node.pos_start,node.pos_end)
                  
             )
+
+       def visit_IndexNode(self, node, context):
+            res = RTResult()
+
+            list_value = res.register(self.visit(node.list_node, context))
+            if res.error:
+                 return res
+
+            index = res.register(self.visit(node.index_node,context))
+            if res.error:
+                 return res
+
+            if not isinstance(list_value, List):
+                 return res.failure(
+                      RTError(
+                           node.pos_start,
+                           node.pos_end,
+                           "Expected a list",
+                           context
+                      )
+                 )
+
+            if not isinstance(index,Number):
+                 return res.failure(
+                      RTError(
+                           node.pos_start,
+                           node.pos_end,
+                           "List index must be a number",
+                           context
+                      )
+                 )
+
+            try :
+                 return res.success(
+                      list_value.elements[int(index.value)].copy()
+                 )
+            except IndexError:
+                 return res.failure(
+                      RTError(
+                           node.pos_start,
+                           node.pos_end,
+                           "List index out of range",
+                           context
+                      )
+                      
+                 )
+            
+
        
 
        def visit_BinOpNode(self,node,context):
