@@ -154,9 +154,16 @@ class IndexNode :
 
           self.pos_start = list_node.pos_start 
           self.pos_end = index_node.pos_end
-          
 
-     
+class IndexAssignNode:
+     def __init__(self,index_node,value_node):
+          self.index_node = index_node
+          self.value_node = value_node
+
+          self.pos_start = index_node.pos_start
+          self.pos_end = value_node.pos_end 
+          
+          
 class UnaryOpNode:
      def __init__(self,op_tok,node):
           self.op_tok = op_tok
