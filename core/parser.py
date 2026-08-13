@@ -332,10 +332,21 @@ class Parser:
                       
                  )
                  
-             
-
             node = res.register(self.bin_op(self.comp_expr,((TT_KEYWORD ,'AND'),(TT_KEYWORD ,'OR'))))
+          
+            if self.current_tok.type_ == TT_EQ:
+                 res.register_advancement()
+                 self.advance()
 
+                 value = res.register(self.expr())
+
+                 if res.error:
+                      return res
+
+
+                 return res.success(IndexAssignNode(node,value))
+
+                 
             if res.error: 
                  return res.failure(InvalidSyntaxError(
                       self.current_tok.pos_start,self.current_tok.pos_end ,
