@@ -338,10 +338,59 @@ class Interpreter :
                       )
                       
                  )
-            
 
+       def visit_IndexAssignNode(self, node, context):
+            res = RTResult()
+
+            list_value = res.register(self.visit(node.index_node.list_node, context))
+            if res.error:
+                     return res
+
+            index = res.register(self.visit(node.index_node.index_node, context))
+            if res.error:
+                     return res
+
+            value = res.register(self.visit(node.value_node, context))
+            if res.error:
+                    return res
+
+            if not isinstance(list_value, List):
+                return res.failure(
+                     RTError(
+                          node.pos_start,
+                          node.pos_end,
+                          "value is not a list",
+                          context
+                     )
+                )
+            if not isinstance(index, Number):
+                 return res.failure(
+                      RTError(
+                           node.pos_start,
+                           node.pos_end,
+                           "List index must be a number",
+                            context
+                            
+                      )
+                 )
+
+            try:
+                 list_value.elements[int(index.value)] = value
+
+            except IndexError:
+                 return res.failure(
+                      RTError(
+                           node.pos_start,
+                           node.pos_end,
+                           "List index out of range"
+                      )
+                 )
+
+            return res.success(list_value)
        
 
+            
+          
        def visit_BinOpNode(self,node,context):
          res = RTResult()
          left = res.register(self.visit(node.left_node,context))
