@@ -69,13 +69,15 @@ class Parser:
 
                  var_access = VarAccessNode(tok)
 
-                 if self.current_tok.type_ == TT_LSQUARE:
+                 node = var_access
+
+                 while self.current_tok.type_ == TT_LSQUARE:
                       res.register_advancement()
                       self.advance()
 
                       index = res.register(self.expr())
                       if res.error:
-                           return res 
+                           return res
 
                       if self.current_tok.type_ != TT_RSQUARE:
                            return res.failure(InvalidSyntaxError(
@@ -87,8 +89,9 @@ class Parser:
                       res.register_advancement()
                       self.advance()
 
-                      return res.success(IndexNode(var_access,index))
+                      node = IndexNode(node,index)
 
+                      
                  if self.current_tok.type_ == TT_LPAREN:
                       res.register_advancement()
                       self.advance()
@@ -107,7 +110,7 @@ class Parser:
 
                       return res.success(CallNode(var_access,arg_nodes))
                  
-                 return res.success(var_access)
+                 return res.success(node)
 
 
             elif tok.type_ == TT_LPAREN:
