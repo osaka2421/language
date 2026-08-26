@@ -27,3 +27,6 @@ nums[0][1] = 99
 
 SHOW nums[0][1]
 SHOW nums
+
+HENSU nums = [10, 20, 30]
+SHOW LEN(nums)
