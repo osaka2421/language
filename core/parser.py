@@ -112,6 +112,36 @@ class Parser:
                  
                  return res.success(node)
 
+            elif tok.matches(TT_KEYWORD,'LEN'):
+                 res.register_advancement()
+                 self.advance()
+
+                 if self.current_tok.type_ != TT_LPAREN:
+                      return res.failure(InvalidSyntaxError(
+                           self.current_tok.pos_start,
+                           self.current_tok.pos_end,
+                           "Expected '('"
+                      ))
+
+                 res.register_advancement()
+                 self.advance()
+
+                 value = res.register(self.expr())
+                 if res.error:
+                      return res
+
+                 if self.current_tok.type_ != TT_RPAREN:
+                      return res.failure(InvalidSyntaxError(
+                         self.current_tok.pos_start,
+                         self.current_tok.pos_end,
+                         "Expected ')'"
+                      ))
+
+                 res.register_advancement()
+                 self.advance()
+
+                 return res.success(LenNode(value))
+                     
 
             elif tok.type_ == TT_LPAREN:
                 res.register_advancement()
@@ -170,10 +200,11 @@ class Parser:
                  if res.error:
                       return res
                  return res.success(list_expr)
+          
 
             return res.failure(InvalidSyntaxError(
                  tok.pos_start, tok.pos_end,
-                 "Expected int,float,identifier,When,'+ ' , '-' , or '('") )
+                 "Expected int,float,identifier,WHEN,FOR,WHILE,FUN,INPUT'+ ' , '-' , or'('") )
              
     def power(self):
          return self.bin_op(self.atom,(TT_POWER, ),self.factor)                           
