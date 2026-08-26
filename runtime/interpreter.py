@@ -387,6 +387,30 @@ class Interpreter :
                  )
 
             return res.success(list_value)
+
+       def visit_LenNode(self,node,context):
+          res = RTResult()
+
+
+          value = res.register(self.visit(node.value_node,context)
+
+                               )
+
+          if res.error:
+               return res
+
+          if not isinstance (value,List):
+               return res.failure(
+                    RTError(
+                         node.pos_start,
+                         node.pos_end,
+                         "LEN expects a list",
+                         context
+                    )
+               )
+         
+
+          return res.success(Number(len(value.elements)))
        
 
             
